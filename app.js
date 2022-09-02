@@ -148,11 +148,12 @@ const gridMatrixBackup = gridMatrix;
 
 class GridSystem {
     constructor(matrix, matrix2, matrix3, matrix4) {
-        this.matrix = matrix;
-        this.matrixMain = matrix;
-        this.matrix2 = matrix2;
-        this.matrix3 = matrix3;
-        this.matrix4 = matrix4;
+        this.matrix = [];
+        this.matrixMain = JSON.parse(JSON.stringify(matrix));
+        this.matrix2 = JSON.parse(JSON.stringify(matrix2));
+        this.matrix3 = JSON.parse(JSON.stringify(matrix3));
+        this.matrix4 = JSON.parse(JSON.stringify(matrix4));
+        this.backupMatrix1 = JSON.parse(JSON.stringify(matrix));
         this.cellSize = 40;
         this.padding = 2;
         this.startingSteps = 0;
@@ -391,6 +392,23 @@ class GridSystem {
 
         this.matrix[plyrSlot.y][plyrSlot.x] = plyrSlot.lable;
     }
+    duplicateMatrix(backMatrix) {
+        
+        if (activatedMatrixCounter === 1) {
+            this.matrixMain = JSON.parse(JSON.stringify(backMatrix));
+            this.allAreas["mainArea"] = this.matrixMain;
+        }else if (activatedMatrixCounter === 2) {
+            this.matrix2 = JSON.parse(JSON.stringify(backMatrix));
+            this.allAreas["area2"] = this.matrix2;
+        }else if (activatedMatrixCounter === 3) {
+            this.matrix3 = JSON.parse(JSON.stringify(backMatrix));
+            this.allAreas["area3"] = this.matrix3;
+        }else if (activatedMatrixCounter === 4) {
+            this.matrix4 = JSON.parse(JSON.stringify(backMatrix));
+            this.allAreas["area4"] = this.matrix4;
+        }
+        
+    }
 
     #isValidMove(plyrSlot, x, y) {
 
@@ -585,20 +603,20 @@ class GridSystem {
     }
     resetMap(activatedMatrixCounter) {
         
-        console.log("run?")
         const originalMap = {1:gridMatrix, 2:gridMatrix2, 3:gridMatrix3, 4:gridMatrix4};
         
-        //this.matrix = originalMap[activatedMatrixCounter];
-         this.matrixMain = gridMatrixBackup;
+        const getMap = originalMap[activatedMatrixCounter];
+        
+         const matrix = JSON.parse(JSON.stringify(getMap));
+         this.duplicateMatrix(matrix);
          this.playersArr.forEach((player) => {
+            player.x = player.defaultX;
+            player.y = player.defaultY;
             this.#startingPoint(player);
+            player.wallet = 0;
+            player.total = 0;
+            player.steps = 0;
         });
-        //this.matrixMain = this.matrix;
-        // this.playersArr.forEach((player) => {
-            
-        //     this.transitionToAnotherArea5(levelSequence[activatedMatrixCounter], player);
-        //     player.area = levelSequence[activatedMatrixCounter];
-        // });
 
     }
 
@@ -885,9 +903,10 @@ io.sockets.on('connection', function (sock) {
     });
     sock.on('restartLevel', () => {
 
-        gridSystem = new GridSystem(gridMatrixBackup, gridMatrix2, gridMatrix3, gridMatrix4);
-        gridSystem.jumpToMap(activatedMatrixCounter);
+        gridSystem.resetMap(activatedMatrixCounter);
+
         gridSystem.emitToUsers();
+        
         
     });
     sock.on('goToNextMap', () => {
