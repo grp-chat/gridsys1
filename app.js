@@ -210,14 +210,10 @@ class GridSystem {
             test() {console.log("test")}
         }
         this.cdm = {
-            //area1: [{x:2,y:10},{x:17,y:10},{x:20,y:2},{x:20,y:18},{x:23,y:3},{x:23,y:17},{x:30,y:4},{x:30,y:16},{x:34,y:10}],
             area1: [{}],
-            //area2: [{x:1,y:8},{x:10,y:10},{x:13,y:1},{x:21,y:13}],
             area2: [{}],
-            // area3: [{x:16,y:2}],
             area3: [{}],
-            // area4: [{x:7,y:8}],
-             area4: [{}]
+            area4: [{}]
         }
         this.cdmByArea = {
             "mainArea": this.cdm.area1,
